@@ -19,6 +19,8 @@ with ConnectHandler(**cisco1) as net_connect:
     output = net_connect.send_command(command)
     print(output)
     # show ip int br fsm list of dicts parsed
+    # list of supported commands:
+    # https://github.com/networktocode/ntc-templates/tree/master/ntc_templates/templates
     output_fsm = net_connect.send_command(command, use_textfsm=True)
     print(json.dumps(output_fsm, indent=4))
 
