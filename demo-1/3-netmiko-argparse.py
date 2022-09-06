@@ -1,66 +1,42 @@
 #!/usr/bin/python3
 from netmiko import ConnectHandler
 from argparse import ArgumentParser
-import sys
-# https://mkaz.blog/code/python-argparse-cookbook/
+from getpass import getpass
 
+if __name__ == "__main__":
 
-# single device input
-# next demo feed in device list from csv
+    parser = ArgumentParser(description="Netmiko command line tool",
+                            usage="python3 3-netmiko-argparse.py -u cisco -d cisco_ios_telnet  -i 10.10.20.175 -c 'show ip interface brief'")
+    parser.add_argument(
+        '-u', '--user', help='Supply a username to login to the device')
+    parser.add_argument('-p', '--password',
+                        help='Supply a password to login to the device, if none is given, you will be prompted for one')
+    parser.add_argument('-d', '--device_type', choices=['cisco_ios_telnet', 'cisco_xr_telnet', 'cisco_ios', 'cisco_nxos', 'cisco_asa', 'cisco_xr'],
+                        help='Choose a device type for the Netmiko connection', required=True)
+    parser.add_argument(
+        '-i', '--ipaddr', choices=['10.10.20.175', '10.10.20.176'], help='Supply an IP address for Netmiko, choices from the Sandbox', required=True)
+    parser.add_argument(
+        '-c', '--cmd', choices=['show version', 'show run', 'show ip interface brief'], help='Supply a command to execute to the device from the choices', required=True)
+    parser.add_argument(
+        '-f', '--file',
+        help='If you want to save the output to a file, enter the filename here'
+    )
+    args = parser.parse_args()
 
-# arg parser configuration
-parser = ArgumentParser(prog="Netmiko command line tool", description="Netmiko command line tool",
-                        usage="python3 3-netmiko-argparse.py -u USER -p PASS -d IP_ADDR -c \"show int ip brief\"")
-parser.add_argument("-u", "--user", help="Username of device.",
-                    type=str, dest="user", required=True)
-parser.add_argument("-p", "--pass", help="password",
-                    type=str, dest="password", required=True)
-parser.add_argument("-d", "--device", help="IP address of cisco asa",
-                    type=str, dest="device", required=True)
-parser.add_argument("-c", "--cmd", help="cisco asa command",
-                    type=str, dest="cmd", required=True)
-parser.add_argument(
-    "--port", help="ssh port if not define it is 22 by default.", type=int, dest="port")
+    if not args.password:
+        args.password = getpass()
 
-# if no argument is supplied print help message.
-if len(sys.argv) == 1:
-    parser.print_help(sys.stderr)
-    sys.exit(1)
-args = parser.parse_args()
+    device_dict = {
+        "device_type": args.device_type,
+        "host": args.ipaddr,
+        "username": args.user,
+        "password": args.password,
+    }
 
-# netmiko configuration
-asa_config = dict(
-    username=args.user,
-    password=args.password,
-    ip=args.device,
-    device_type="cisco_asa",
-    port=args.port if args.port else 22
-)
-
-with ConnectHandler(**asa_config) as asa:
-    result = asa.send_command(args.cmd)
-
-# print out the result
-print(result)
-
-
-# if __name__ == "__main__":
-
-#     facts = {'vendor': 'cisco', 'mgmt_ip': '10.1.1.1',
-#              'model': 'nexus', 'hostname': 'NYC301', 'os': '6.1.2'}
-
-#     parser = argparse.ArgumentParser(
-#         description='Python Argparse Demo for Training Course.')
-#     parser.add_argument('-f', '--fact', choices=facts.keys(),
-#                         help='enter a valid fact from the device facts dictionary')
-#     parser.add_argument(
-#         '-u', '--user', help='enter username to login to the device')
-#     parser.add_argument('-p', '--password', required=True,
-#                         help='enter password to login to the device')
-#     parser.add_argument('-d', '--device_type',
-#                         help='enter device type for netmiko')
-#     parser.add_argument(
-#         '-i', '--ipaddr', choices=['csr1', 'csr2'], help='enter ipaddress for netmiko')
-#     parser.add_argument(
-#         '-c', '--cmd', choices=['show version', 'show run'], help='enter command to execute for netmiko')
-#     args = parser.parse_args()
+    netmiko_device = ConnectHandler(**device_dict)
+    command_output = netmiko_device.send_command(args.cmd)
+    print(command_output)
+    
+    if args.file:
+        with open(args.file, 'w') as file:
+            file.write(command_output)
