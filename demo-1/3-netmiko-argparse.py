@@ -7,7 +7,7 @@ if __name__ == "__main__":
 
     parser = ArgumentParser(
         description="Netmiko command line tool",
-        usage="python3 3-netmiko-argparse.py -u cisco -d cisco_ios_telnet  -i 10.10.20.175 -c 'show ip interface brief'",
+        usage="python3 3-netmiko-argparse.py -u cisco -d cisco_ios_telnet  -i 10.10.20.175 -c 'show ip interface brief' -f command_output.txt",
     )
     parser.add_argument(
         "-u",

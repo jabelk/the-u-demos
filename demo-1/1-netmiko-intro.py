@@ -17,4 +17,5 @@ if __name__ == "__main__":
             "show version | include Version"
         )
     )
+    print(dir(netmiko_device))
     netmiko_device.disconnect()
