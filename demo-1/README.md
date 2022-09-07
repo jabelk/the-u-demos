@@ -1,4 +1,4 @@
-# Demo 1: Building your first Netmiko scripts
+# Demo 1: Building your first Netmiko scripts (READ-ONLY)
 
 Goal: Use Netmiko read-only show commands to get operational data and build a CLI tool to scale it to share with others.
 
